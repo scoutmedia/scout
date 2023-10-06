@@ -56,14 +56,18 @@ func monitor(title string, t *torrent.Torrent) {
 	tick := time.NewTicker(5 * time.Second)
 	for range tick.C {
 		percentage := float64(t.BytesCompleted()) / float64(t.Info().TotalLength()) * 100
-		cmd := exec.Command("clear")
-		cmd.Stdout = os.Stdout
-		cmd.Run()
+		clearScreen()
 		log.Printf("%s Progress %.2f%%\n", title, percentage)
 		if percentage == float64(100) {
 			tick.Stop()
 		}
 	}
+}
+
+func clearScreen() {
+	cmd := exec.Command("clear")
+	cmd.Stdout = os.Stdout
+	cmd.Run()
 }
 
 func moveRecentDownload(title string) {
@@ -76,11 +80,12 @@ func moveRecentDownload(title string) {
 				log.Println(err)
 			}
 			sourcePath := workingDir + found.Name()
-			destPath := "/media/plex/movies" + title
+			destPath := "/media/plex/movies/" + title
 			err = os.Rename(sourcePath, destPath)
 			if err != nil {
 				log.Println(err)
 			}
+			clearScreen()
 		}
 	}
 }
