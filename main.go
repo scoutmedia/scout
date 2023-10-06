@@ -15,7 +15,7 @@ func main() {
 	config := config.NewConfig()
 	config.Load()
 	// Initialize api server
-	server := Api.NewServer(config.Port)
-	fmt.Printf("%s server running on port%s\n", config.Name, config.Port)
+	server := Api.NewServer(config)
+	fmt.Printf("%s %s server running on port%s\n", config.Name, config.Version, config.Port)
 	log.Fatal(server.Start())
 }

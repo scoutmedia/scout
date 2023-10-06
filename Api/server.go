@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	config "scout/Config"
 	"scout/Models"
 	scraper "scout/Scraper"
 	"sync"
@@ -15,11 +16,13 @@ var wg sync.WaitGroup
 
 type Server struct {
 	listenAddr string
+	config     config.Config
 }
 
-func NewServer(port string) *Server {
+func NewServer(config config.Config) *Server {
 	return &Server{
-		listenAddr: port,
+		listenAddr: config.Port,
+		config:     config,
 	}
 }
 func (s *Server) Start() error {
@@ -42,14 +45,14 @@ func (s *Server) handleRequest(w http.ResponseWriter, r *http.Request) {
 	wg.Add(1)
 	go func() { // rewrite this to support individual go routine per request sent
 		defer wg.Done()
-		processRequest(requestData.Data)
+		processRequest(requestData.Data, s.config.Sources)
 	}()
 	wg.Wait()
 
 }
 
-func processRequest(data string) {
-	scraper := scraper.NewScraper(colly.NewCollector())
+func processRequest(data string, sources []string) {
+	scraper := scraper.NewScraper(colly.NewCollector(), sources)
 	scraper.Init(data)
 }
 

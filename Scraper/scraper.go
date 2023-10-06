@@ -20,14 +20,16 @@ var (
 )
 
 type Scraper struct {
-	c    *colly.Collector
-	File Models.TorrentFile
+	c       *colly.Collector
+	sources []string
+	File    Models.TorrentFile
 }
 
-func NewScraper(collector *colly.Collector) *Scraper {
+func NewScraper(collector *colly.Collector, sources []string) *Scraper {
 	return &Scraper{
-		c:    collector,
-		File: Models.TorrentFile{},
+		c:       collector,
+		sources: sources,
+		File:    Models.TorrentFile{},
 	}
 }
 
@@ -73,7 +75,7 @@ func (scraper *Scraper) verifyTorrentOption(r *colly.HTMLElement) {
 	size := r.ChildText(".size")
 	hrefs := r.ChildAttrs("a", "href")
 
-	if uploader == username {
+	if hasUsername(uploader, scraper.sources) {
 		if strings.Contains(strings.ToLower(title), quality) {
 			if scraper.File.Name == "" {
 				scraper.File.Name = title
@@ -111,6 +113,16 @@ func (scraper *Scraper) verifyTorrentOption(r *colly.HTMLElement) {
 			scraper.c.Visit("https://1337x.to" + hrefs[1])
 		}
 	}
+}
+
+func hasUsername(uploader string, sources []string) bool {
+	for _, source := range sources {
+		if strings.Contains(uploader, source) {
+			return true
+		}
+		continue
+	}
+	return false
 }
 
 func getFileSize(size string) (val float64, err error) {
