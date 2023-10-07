@@ -49,6 +49,7 @@ func (d *Downloader) download(title string, file Models.TorrentFile) {
 		log.Printf("%s finished downloading , took %v", title, time.Since(start))
 		defer t.Drop()
 		moveRecentDownload(title)
+		clearScreen()
 	}
 }
 
@@ -71,7 +72,7 @@ func clearScreen() {
 }
 
 func moveRecentDownload(title string) {
-	workingDir := "/media/downloads/"
+	workingDir := "/media/plex/downloads"
 	downloads := getDownloads(workingDir)
 	for _, download := range downloads {
 		if download.IsDir() {
@@ -85,7 +86,6 @@ func moveRecentDownload(title string) {
 			if err != nil {
 				log.Println(err)
 			}
-			clearScreen()
 		}
 	}
 }
@@ -97,13 +97,3 @@ func getDownloads(workingDir string) []fs.DirEntry {
 	}
 	return f
 }
-
-// func (d *Downloader) Monitor() { // Need to do more research on how to accomplish this
-// 	tick := time.NewTicker(2 * time.Second)
-// 	for range tick.C {
-// 		log.Println(d.Torrent)
-// 		if len(d.Client.Torrents()) > 0 {
-
-// 		}
-// 	}
-// }
