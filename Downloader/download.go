@@ -72,7 +72,7 @@ func clearScreen() {
 }
 
 func moveRecentDownload(title string) {
-	workingDir := "/media/plex/downloads"
+	workingDir := "/media/plex/downloads/"
 	downloads := getDownloads(workingDir)
 	for _, download := range downloads {
 		if download.IsDir() {
