@@ -112,8 +112,8 @@ func (scraper *Scraper) verifyTorrentOption(title string, r *colly.HTMLElement) 
 						scraper.c.Visit("https://1337x.to" + hrefs[1])
 					}
 				}
+				// scraper.c.Visit("https://1337x.to" + hrefs[1])
 			}
-			scraper.c.Visit("https://1337x.to" + hrefs[1])
 		}
 	}
 }
@@ -131,6 +131,7 @@ func hasUsername(uploader string, sources []string) bool {
 func hasMatchingTitle(title string, fileName string, sources []string) bool {
 	for _, source := range sources {
 		configuredTitle := configureTitle(title, source)
+		log.Println(configuredTitle)
 		if strings.Contains(fileName, configuredTitle) {
 			return true
 		}
