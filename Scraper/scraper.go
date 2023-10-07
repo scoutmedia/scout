@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"math"
+	"regexp"
 	config "scout/Config"
 	downloader "scout/Downloader"
 	"scout/Models"
@@ -52,7 +53,7 @@ func (scraper *Scraper) FindRequestedFile(title string) (file Models.TorrentFile
 
 	scraper.c.OnHTML("table", func(e *colly.HTMLElement) {
 		e.ForEach("tr", func(i int, r *colly.HTMLElement) {
-			scraper.verifyTorrentOption(r)
+			scraper.verifyTorrentOption(title, r)
 		})
 	})
 	scraper.c.Visit(formatUrl(title))
@@ -68,39 +69,25 @@ func formatUrl(title string) string {
 	return fmt.Sprintf("https://1337x.to/sort-category-search/%v/Movies/seeders/desc/1/", replaceCommas)
 }
 
-func (scraper *Scraper) verifyTorrentOption(r *colly.HTMLElement) {
+func (scraper *Scraper) verifyTorrentOption(title string, r *colly.HTMLElement) {
 	uploader := r.ChildText(".coll-5")
-	title := r.ChildText(".name")
+	fileName := r.ChildText(".name")
 	date := r.ChildText(".coll-date")
 	size := r.ChildText(".size")
 	hrefs := r.ChildAttrs("a", "href")
 
 	if hasUsername(uploader, scraper.sources) {
-		if strings.Contains(strings.ToLower(title), quality) {
-			if scraper.File.Name == "" {
-				scraper.File.Name = title
-				scraper.File.Date = date
-				scraper.File.Uploader = username
-				size, err := getFileSize(size)
-				if err != nil {
-					log.Println(err)
-				}
-				scraper.File.Size = size
-				scraper.c.OnHTML("a", func(link *colly.HTMLElement) {
-					if link.Text == "Magnet Download" {
-						scraper.File.Magnet = link.Attr("href")
-					}
-				})
-				scraper.c.Visit("https://1337x.to" + hrefs[1])
-			} else {
-				size, err := getFileSize(size)
-				if err != nil {
-					log.Println(err)
-				}
-				if size < scraper.File.Size {
-					scraper.File.Name = title
+		if hasQuality(quality, fileName) {
+			if hasMatchingTitle(title, fileName, scraper.sources) {
+				log.Println(fileName)
+				if scraper.File.Name == "" {
+					scraper.File.Name = fileName
 					scraper.File.Date = date
 					scraper.File.Uploader = username
+					size, err := getFileSize(size)
+					if err != nil {
+						log.Println(err)
+					}
 					scraper.File.Size = size
 					scraper.c.OnHTML("a", func(link *colly.HTMLElement) {
 						if link.Text == "Magnet Download" {
@@ -108,6 +95,23 @@ func (scraper *Scraper) verifyTorrentOption(r *colly.HTMLElement) {
 						}
 					})
 					scraper.c.Visit("https://1337x.to" + hrefs[1])
+				} else {
+					size, err := getFileSize(size)
+					if err != nil {
+						log.Println(err)
+					}
+					if size < scraper.File.Size {
+						scraper.File.Name = fileName
+						scraper.File.Date = date
+						scraper.File.Uploader = username
+						scraper.File.Size = size
+						scraper.c.OnHTML("a", func(link *colly.HTMLElement) {
+							if link.Text == "Magnet Download" {
+								scraper.File.Magnet = link.Attr("href")
+							}
+						})
+						scraper.c.Visit("https://1337x.to" + hrefs[1])
+					}
 				}
 			}
 			scraper.c.Visit("https://1337x.to" + hrefs[1])
@@ -121,6 +125,36 @@ func hasUsername(uploader string, sources []string) bool {
 			return true
 		}
 		continue
+	}
+	return false
+}
+
+func hasMatchingTitle(title string, fileName string, sources []string) bool {
+	for _, source := range sources {
+		configuredTitle := configureTitle(title, source)
+		if strings.Contains(fileName, configuredTitle) {
+			return true
+		}
+	}
+	return false
+}
+
+func configureTitle(title string, source string) string {
+	switch source {
+	case "TGxGoodies":
+		r := regexp.MustCompile("\\(|\\)")
+		r2 := regexp.MustCompile(" ")
+		r3 := regexp.MustCompile("\\'")
+		replacedStr := r3.ReplaceAllString(r2.ReplaceAllString(r.ReplaceAllString(title, ""), "."), "")
+		return replacedStr
+	}
+
+	return ""
+}
+
+func hasQuality(quality string, fileName string) bool {
+	if strings.Contains(fileName, quality) {
+		return true
 	}
 	return false
 }
