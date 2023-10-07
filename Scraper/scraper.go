@@ -79,7 +79,6 @@ func (scraper *Scraper) verifyTorrentOption(title string, r *colly.HTMLElement) 
 	if hasUsername(uploader, scraper.sources) {
 		if hasQuality(quality, fileName) {
 			if hasMatchingTitle(title, fileName, scraper.sources) {
-				log.Println(fileName)
 				if scraper.File.Name == "" {
 					scraper.File.Name = fileName
 					scraper.File.Date = date
