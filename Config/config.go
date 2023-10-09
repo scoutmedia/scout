@@ -41,6 +41,11 @@ func (c *Config) Load() *Config {
 	viper.AutomaticEnv()
 	viper.SetConfigType("yml")
 	viper.SetConfigName("config")
+	if os.Getenv("env") == "development" {
+		viper.SetConfigName("config.dev")
+	} else {
+		viper.SetConfigName("config")
+	}
 	readConfigErr := viper.ReadInConfig()
 	if readConfigErr != nil {
 		log.Println(readConfigErr)

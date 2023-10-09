@@ -5,8 +5,10 @@ import (
 	"fmt"
 	"net/http"
 	config "scout/Config"
-	"scout/Models"
+	downloader "scout/Downloader"
+	models "scout/Models"
 	scraper "scout/Scraper"
+	task "scout/Task"
 	"sync"
 
 	"github.com/gocolly/colly/v2"
@@ -17,12 +19,14 @@ var wg sync.WaitGroup
 type Server struct {
 	listenAddr string
 	config     config.Config
+	downloader *downloader.Downloader
 }
 
-func NewServer(config config.Config) *Server {
+func NewServer(config config.Config, downloader *downloader.Downloader) *Server {
 	return &Server{
 		listenAddr: config.Port,
 		config:     config,
+		downloader: downloader,
 	}
 }
 func (s *Server) Start() error {
@@ -31,7 +35,8 @@ func (s *Server) Start() error {
 }
 
 func (s *Server) handleRequest(w http.ResponseWriter, r *http.Request) {
-	var requestData Models.Request
+	var requestData models.Request
+
 	if r.Method != "POST" {
 		writeJSON(w, http.StatusNotAcceptable, map[string]any{"error": "Invalid request"})
 		return
@@ -41,19 +46,19 @@ func (s *Server) handleRequest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	writeJSON(w, http.StatusAccepted, map[string]any{"success": "success"})
-
 	wg.Add(1)
 	go func() { // rewrite this to support individual go routine per request sent
-		defer wg.Done()
-		processRequest(requestData.Data, s.config.Sources)
+		s.process(requestData.Data, s.config, &wg)
 	}()
 	wg.Wait()
 
 }
 
-func processRequest(data string, sources []string) {
-	scraper := scraper.NewScraper(colly.NewCollector(), sources)
-	scraper.Init(data)
+func (s *Server) process(data string, config config.Config, wg *sync.WaitGroup) {
+	defer wg.Done()
+	newTask := task.NewTask(data, config.Sources)
+	scraper := scraper.NewScraper(colly.NewCollector(), newTask, config)
+	scraper.Start(s.downloader)
 }
 
 func writeJSON(w http.ResponseWriter, s int, v any) error {
