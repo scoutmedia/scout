@@ -60,6 +60,8 @@ func (scraper *Scraper) verify(r *colly.HTMLElement) {
 	hrefs := r.ChildAttrs("a", "href")
 	if matchUsername(uploader, scraper.task.Sources) {
 		if matchQuality(quality, torrentName) {
+			log.Println(scraper.task.Name)
+			log.Println(matchTitle(scraper.task.Name, torrentName, uploader))
 			if matchTitle(scraper.task.Name, torrentName, uploader) {
 				if scraper.task.TorrentFile.Name == "" {
 					scraper.task.TorrentFile.Name = torrentName
@@ -126,6 +128,7 @@ func formatTitle(title string, uploader string) (replacedStr string) {
 		r3 := regexp.MustCompile("\\'")
 		r4 := regexp.MustCompile("\\:")
 		replacedStr = r4.ReplaceAllString(r3.ReplaceAllString(r2.ReplaceAllString(r.ReplaceAllString(title, ""), "."), ""), "")
+		log.Println(replacedStr)
 		return replacedStr
 	}
 	return replacedStr

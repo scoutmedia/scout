@@ -5,3 +5,5 @@ datadir: "/media/plex/downloads/"
 
 sources:
    - "TGxGoodies"
+   - "BedBug"
+   - "QxR"
