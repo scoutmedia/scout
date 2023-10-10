@@ -6,10 +6,7 @@ import (
 	"scout/Api"
 	config "scout/Config"
 	downloader "scout/Downloader"
-	"sync"
 )
-
-var wg sync.WaitGroup
 
 func main() {
 	// Initalize and load configuration
