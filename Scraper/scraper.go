@@ -58,6 +58,7 @@ func (scraper *Scraper) verify(r *colly.HTMLElement) {
 	uploadDate := r.ChildText(".coll-date")
 	torrentSize := r.ChildText(".size")
 	hrefs := r.ChildAttrs("a", "href")
+
 	if matchUsername(uploader, scraper.task.Sources) {
 		if containsNegativeWord(torrentName, scraper.config.NegativeWords) {
 			if matchQuality(quality, torrentName) {
@@ -120,25 +121,38 @@ func matchTitle(title string, torrentName string, uploader string) bool {
 	return false
 }
 
-func formatTitle(title string, uploader string) (escapedTitle string) {
+func formatTitle(title string, uploader string) (replacedStr string) {
 	switch uploader {
 	case "TGxGoodies":
-		// Define a regex pattern to match spaces and parentheses and remove them
-		p := "[ '()]+"
-		regex := regexp.MustCompile(p)
-
-		// Replace spaces and parentheses with dots in the title
-		replaceStr := regex.ReplaceAllString(title, ".")
-
-		//remove any apostrophes
-		replaceStr = regex.ReplaceAllString("'", "")
-
-		// Use a regex pattern to escape special characters in the title
-		escapedTitle = regexp.QuoteMeta(replaceStr)
-		return escapedTitle
+		r := regexp.MustCompile("\\(|\\)")
+		r2 := regexp.MustCompile(" ")
+		r3 := regexp.MustCompile("\\'")
+		r4 := regexp.MustCompile("\\:")
+		replacedStr = r4.ReplaceAllString(r3.ReplaceAllString(r2.ReplaceAllString(r.ReplaceAllString(title, ""), "."), ""), "")
+		return replacedStr
 	}
-	return escapedTitle
+	return replacedStr
 }
+
+// func formatTitle(title string, uploader string) (escapedTitle string) {
+// 	switch uploader {
+// 	case "TGxGoodies":
+// 		// Define a regex pattern to match spaces and parentheses and remove them
+// 		p := "[ '()]+"
+// 		regex := regexp.MustCompile(p)
+
+// 		// Replace spaces and parentheses with dots in the title
+// 		replaceStr := regex.ReplaceAllString(title, ".")
+
+// 		//remove any apostrophes
+// 		replaceStr = regex.ReplaceAllString("'", "")
+
+// 		// Use a regex pattern to escape special characters in the title
+// 		escapedTitle = regexp.QuoteMeta(replaceStr)
+// 		return escapedTitle
+// 	}
+// 	return escapedTitle
+// }
 
 func containsNegativeWord(torrentName string, negativeWords []string) bool {
 	loweredTorrentName := strings.ToLower(torrentName)
