@@ -6,13 +6,10 @@ import (
 	"os"
 	"os/exec"
 	model "scout/Models"
-	"sync"
 	"time"
 
 	"github.com/anacrolix/torrent"
 )
-
-var wg sync.WaitGroup
 
 type Downloader struct {
 	Client  *torrent.Client
