@@ -51,17 +51,20 @@ func (d *Downloader) Monitor(client *torrent.Client) {
 	tick := time.NewTicker(5 * time.Second)
 	for range tick.C {
 		if len(client.Torrents()) != 0 {
+			log.Println("Active Downloads")
+			go func() {
+				time.Sleep(9 * time.Second)
+				clearScreen()
+			}()
 			for _, activeTorrent := range client.Torrents() {
 				go func(activeTorrent *torrent.Torrent) {
 					info := activeTorrent.Info()
 					if info != nil {
 						torrent, _ := d.Client.Torrent(activeTorrent.InfoHash())
 						percentage := float64(torrent.BytesCompleted()) / float64(torrent.Info().TotalLength()) * 100
-						clearScreen()
 						log.Printf("%s Progress %.2f%%\n", torrent.Info().Name, percentage)
 					}
 				}(activeTorrent)
-
 			}
 		}
 	}

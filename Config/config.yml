@@ -1,6 +1,6 @@
 name: "Scout API"
 port: ":8000"
-version: "v.0.0.2"
+version: "v.0.5"
 datadir: "/media/plex/downloads/"
 
 sources:
