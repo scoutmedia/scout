@@ -1,4 +1,4 @@
-package Models
+package model
 
 type TorrentFile struct {
 	Name     string

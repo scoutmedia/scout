@@ -5,10 +5,7 @@ datadir: "/media/plex/downloads/"
 
 sources:
    - "TGxGoodies"
-   - "BedBug"
-   - "QxR"
 
 negativeWords:
    - "webrip"
-   - "rip"
    - "hdts"

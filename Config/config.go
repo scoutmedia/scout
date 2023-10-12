@@ -8,11 +8,12 @@ import (
 )
 
 type Config struct {
-	Name    string   `yaml:"name"`
-	Port    string   `yaml:"port"`
-	Version string   `yaml:"version"`
-	Sources []string `yaml:"sources"`
-	DataDir string   `yaml:"datadir"`
+	Name          string   `yaml:"name"`
+	Port          string   `yaml:"port"`
+	Version       string   `yaml:"version"`
+	Sources       []string `yaml:"sources"`
+	NegativeWords []string `yaml:"negativeWords"`
+	DataDir       string   `yaml:"datadir"`
 }
 
 func NewConfig() Config {
@@ -26,6 +27,9 @@ func (c *Config) CheckConfig() {
 	}
 	if len(c.Sources) == 0 {
 		log.Println("No sources found")
+	}
+	if len(c.NegativeWords) == 0 {
+		log.Println("No negative keywords set")
 	}
 	if defaultVal {
 		log.Fatalf("Failed to start %s due to misconfiguation", c.Name)
@@ -41,6 +45,11 @@ func (c *Config) Load() *Config {
 	viper.AutomaticEnv()
 	viper.SetConfigType("yml")
 	viper.SetConfigName("config")
+	if os.Getenv("env") == "development" {
+		viper.SetConfigName("config.dev")
+	} else {
+		viper.SetConfigName("config")
+	}
 	readConfigErr := viper.ReadInConfig()
 	if readConfigErr != nil {
 		log.Println(readConfigErr)

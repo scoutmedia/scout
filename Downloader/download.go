@@ -5,7 +5,7 @@ import (
 	"log"
 	"os"
 	"os/exec"
-	"scout/Models"
+	model "scout/Models"
 	"sync"
 	"time"
 
@@ -17,50 +17,52 @@ var wg sync.WaitGroup
 type Downloader struct {
 	Client  *torrent.Client
 	Torrent *torrent.Torrent
-	File    Models.TorrentFile
 }
 
-func NewDownloader(directory string) *Downloader {
+func NewDownloader(dataDir string) *Downloader {
 	cfg := torrent.NewDefaultClientConfig()
-	cfg.DataDir = directory
+	cfg.DataDir = dataDir
 	client, _ := torrent.NewClient(cfg)
-
 	return &Downloader{
 		Client: client,
 	}
 }
 
-func (d *Downloader) Init(requestedTitle string, scrapedFile Models.TorrentFile) {
-	d.download(requestedTitle, scrapedFile)
-}
-
-func (d *Downloader) download(title string, file Models.TorrentFile) {
-	t, err := d.Client.AddMagnet(file.Magnet)
+func (d *Downloader) Start(title string, torrentFile model.TorrentFile) {
+	t, err := d.Client.AddMagnet(torrentFile.Magnet)
 	if err != nil {
-		log.Println(err)
+		log.Println("Error occured adding torrent magnet", err)
 	}
-	log.Printf("Retrieving %s Torrent info ", title)
+	log.Printf("Retrieving %s info", torrentFile.Name)
 	<-t.GotInfo()
-	log.Printf("%s information has been recieved", title)
-	go monitor(title, t)
+	log.Printf("%s retrived info", torrentFile.Name)
+	log.Printf("%s download will begin shortly ..", torrentFile.Name)
 	start := time.Now()
 	t.DownloadAll()
 	if d.Client.WaitAll() {
-		log.Printf("%s finished downloading , took %v", title, time.Since(start))
+		log.Printf("%s finished downloading , took %v", torrentFile.Name, time.Since(start))
 		defer t.Drop()
-		moveRecentDownload(title)
 		clearScreen()
+		moveRecentDownload(title)
 	}
 }
 
-func monitor(title string, t *torrent.Torrent) {
+func (d *Downloader) Monitor(client *torrent.Client) {
 	tick := time.NewTicker(5 * time.Second)
 	for range tick.C {
-		percentage := float64(t.BytesCompleted()) / float64(t.Info().TotalLength()) * 100
-		clearScreen()
-		log.Printf("%s Progress %.2f%%\n", title, percentage)
-		if percentage == float64(100) {
-			tick.Stop()
+		if len(client.Torrents()) != 0 {
+			for _, activeTorrent := range client.Torrents() {
+				go func(activeTorrent *torrent.Torrent) {
+					info := activeTorrent.Info()
+					if info != nil {
+						torrent, _ := d.Client.Torrent(activeTorrent.InfoHash())
+						percentage := float64(torrent.BytesCompleted()) / float64(torrent.Info().TotalLength()) * 100
+						clearScreen()
+						log.Printf("%s Progress %.2f%%\n", torrent.Info().Name, percentage)
+					}
+				}(activeTorrent)
+
+			}
 		}
 	}
 }

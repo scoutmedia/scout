@@ -5,17 +5,20 @@ import (
 	"log"
 	"scout/Api"
 	config "scout/Config"
-	"sync"
+	downloader "scout/Downloader"
 )
-
-var wg sync.WaitGroup
 
 func main() {
 	// Initalize and load configuration
 	config := config.NewConfig()
 	config.Load()
+
+	// Initiate downloader
+	downloader := downloader.NewDownloader(config.DataDir)
+	go downloader.Monitor(downloader.Client)
+
 	// Initialize api server
-	server := Api.NewServer(config)
+	server := Api.NewServer(config, downloader)
 	fmt.Printf("%s %s server running on port%s\n", config.Name, config.Version, config.Port)
 	log.Fatal(server.Start())
 }
