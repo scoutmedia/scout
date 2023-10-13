@@ -46,16 +46,10 @@ func (s *Server) handleRequest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	writeJSON(w, http.StatusAccepted, map[string]any{"success": "success"})
-	wg.Add(1)
-	go func() { // rewrite this to support individual go routine per request sent
-		s.process(requestData.Data, s.config, &wg)
-	}()
-	wg.Wait()
-
+	go s.process(requestData.Data, s.config)
 }
 
-func (s *Server) process(data string, config config.Config, wg *sync.WaitGroup) {
-	defer wg.Done()
+func (s *Server) process(data string, config config.Config) {
 	newTask := task.NewTask(data, config.Sources)
 	scraper := scraper.NewScraper(colly.NewCollector(), newTask, config)
 	scraper.Start(s.downloader)
