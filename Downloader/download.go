@@ -1,7 +1,6 @@
 package downloader
 
 import (
-	"io/fs"
 	"log"
 	"os"
 	"os/exec"
@@ -34,13 +33,14 @@ func (d *Downloader) Start(title string, torrentFile model.TorrentFile) {
 	<-t.GotInfo()
 	log.Printf("%s retrived info", torrentFile.Name)
 	log.Printf("%s download will begin shortly ..", torrentFile.Name)
+	log.Println(torrentFile.Name, t.Info().Name)
 	start := time.Now()
 	t.DownloadAll()
+
 	if d.Client.WaitAll() {
 		log.Printf("%s finished downloading , took %v", torrentFile.Name, time.Since(start))
 		defer t.Drop()
-		clearScreen()
-		moveRecentDownload(title)
+		d.moveRecentDownload(title, t.Info().Name)
 	}
 }
 
@@ -73,29 +73,6 @@ func clearScreen() {
 	cmd.Run()
 }
 
-func moveRecentDownload(title string) {
-	workingDir := "/media/plex/downloads/"
-	downloads := getDownloads(workingDir)
-	for _, download := range downloads {
-		if download.IsDir() {
-			found, err := os.Stat(workingDir + download.Name())
-			if err != nil {
-				log.Println(err)
-			}
-			sourcePath := workingDir + found.Name()
-			destPath := "/media/plex/movies/" + title
-			err = os.Rename(sourcePath, destPath)
-			if err != nil {
-				log.Println(err)
-			}
-		}
-	}
-}
-
-func getDownloads(workingDir string) []fs.DirEntry {
-	f, err := os.ReadDir(workingDir)
-	if err != nil {
-		log.Println(err)
-	}
-	return f
+func (d *Downloader) moveRecentDownload(title string, folderName string) {
+	os.Rename("/media/plex/downloads/"+folderName, "/media/plex/movies/"+title)
 }

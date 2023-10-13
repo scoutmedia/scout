@@ -46,7 +46,7 @@ func (scraper *Scraper) find() bool {
 		})
 	})
 	scraper.c.Visit(createsearchUrl(scraper.task.Name))
-	if scraper.task.TorrentFile.Name != "" {
+	if scraper.task.Name != "" {
 		return true
 	}
 	return false
@@ -93,8 +93,8 @@ func (scraper *Scraper) verify(r *colly.HTMLElement) {
 									scraper.task.TorrentFile.Magnet = link.Attr("href")
 								}
 							})
+							scraper.c.Visit("https://1337x.to" + hrefs[1])
 						}
-						scraper.c.Visit("https://1337x.to" + hrefs[1])
 					}
 
 				}
@@ -103,22 +103,9 @@ func (scraper *Scraper) verify(r *colly.HTMLElement) {
 	}
 }
 
-func checkFileSize(torrentSize string, currentFileSize float64) bool {
-	convertedFileSize, err := getFileSize(torrentSize)
-	if err != nil {
-		log.Println(err)
-	}
-	if convertedFileSize < currentFileSize {
-		return true
-	}
-	return false
-}
-
 func matchTitle(title string, torrentName string, uploader string) bool {
-	if strings.Contains(torrentName, formatTitle(title, uploader)) {
-		return true
-	}
-	return false
+	loweredTorrentName := strings.ToLower(torrentName)
+	return strings.HasPrefix(loweredTorrentName, formatTitle(title, uploader))
 }
 
 func formatTitle(title string, uploader string) (replacedStr string) {
@@ -129,30 +116,10 @@ func formatTitle(title string, uploader string) (replacedStr string) {
 		r3 := regexp.MustCompile("\\'")
 		r4 := regexp.MustCompile("\\:")
 		replacedStr = r4.ReplaceAllString(r3.ReplaceAllString(r2.ReplaceAllString(r.ReplaceAllString(title, ""), "."), ""), "")
-		return replacedStr
+		return strings.ToLower(replacedStr)
 	}
 	return replacedStr
 }
-
-// func formatTitle(title string, uploader string) (escapedTitle string) {
-// 	switch uploader {
-// 	case "TGxGoodies":
-// 		// Define a regex pattern to match spaces and parentheses and remove them
-// 		p := "[ '()]+"
-// 		regex := regexp.MustCompile(p)
-
-// 		// Replace spaces and parentheses with dots in the title
-// 		replaceStr := regex.ReplaceAllString(title, ".")
-
-// 		//remove any apostrophes
-// 		replaceStr = regex.ReplaceAllString("'", "")
-
-// 		// Use a regex pattern to escape special characters in the title
-// 		escapedTitle = regexp.QuoteMeta(replaceStr)
-// 		return escapedTitle
-// 	}
-// 	return escapedTitle
-// }
 
 func containsNegativeWord(torrentName string, negativeWords []string) bool {
 	loweredTorrentName := strings.ToLower(torrentName)
@@ -169,11 +136,7 @@ func containsNegativeWord(torrentName string, negativeWords []string) bool {
 func matchQuality(quality string, torrentName string) bool {
 	loweredTorrentName := strings.ToLower(torrentName)
 	loweredQuality := strings.ToLower(quality)
-
-	if strings.Contains(loweredTorrentName, loweredQuality) {
-		return true
-	}
-	return false
+	return strings.Contains(loweredTorrentName, loweredQuality)
 }
 
 func matchUsername(uploader string, sources []string) bool {
