@@ -15,7 +15,6 @@ func main() {
 
 	// Initiate downloader
 	downloader := downloader.NewDownloader(config.DataDir)
-	go downloader.Monitor(downloader.Client)
 
 	// Initialize api server
 	server := Api.NewServer(config, downloader)

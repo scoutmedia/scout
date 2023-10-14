@@ -3,7 +3,6 @@ package downloader
 import (
 	"log"
 	"os"
-	"os/exec"
 	model "scout/Models"
 	"time"
 
@@ -34,43 +33,35 @@ func (d *Downloader) Start(title string, torrentFile model.TorrentFile) {
 	log.Printf("%s retrived info", torrentFile.Name)
 	log.Printf("%s download will begin shortly ..", torrentFile.Name)
 	log.Println(torrentFile.Name, t.Info().Name)
-	start := time.Now()
+	go d.status(title, t)
 	t.DownloadAll()
 
-	if d.Client.WaitAll() {
-		log.Printf("%s finished downloading , took %v", torrentFile.Name, time.Since(start))
-		defer t.Drop()
-		d.moveRecentDownload(title, t.Info().Name)
-	}
+	// if d.Client.WaitAll() {
+	// 	log.Printf("%s finished downloading , took %v", torrentFile.Name, time.Since(start))
+	// 	defer t.Drop()
+	// 	d.moveRecentDownload(title, t.Info().Name)
+	// }
 }
 
-func (d *Downloader) Monitor(client *torrent.Client) {
+func (d *Downloader) status(title string, t *torrent.Torrent) {
+	start := time.Now()
 	tick := time.NewTicker(5 * time.Second)
 	for range tick.C {
-		if len(client.Torrents()) != 0 {
-			log.Println("Active Downloads")
-			go func() {
-				time.Sleep(9 * time.Second)
-				clearScreen()
-			}()
-			for _, activeTorrent := range client.Torrents() {
-				go func(activeTorrent *torrent.Torrent) {
-					info := activeTorrent.Info()
-					if info != nil {
-						torrent, _ := d.Client.Torrent(activeTorrent.InfoHash())
-						percentage := float64(torrent.BytesCompleted()) / float64(torrent.Info().TotalLength()) * 100
-						log.Printf("%s Progress %.2f%%\n", torrent.Info().Name, percentage)
-					}
-				}(activeTorrent)
-			}
+		activeTorrent, _ := d.Client.Torrent(t.InfoHash())
+		percentage := float64(activeTorrent.BytesCompleted()) / float64(activeTorrent.Info().TotalLength()) * 100
+		log.Printf("%s Progress %.2f%%\n", activeTorrent.Name(), percentage)
+
+		if percentage == 100 {
+			log.Printf("%s download took %v", title, time.Since(start))
+			d.moveRecentDownload(title, t.Info().Name)
+			tick.Stop()
+			d.drop(t)
 		}
 	}
 }
 
-func clearScreen() {
-	cmd := exec.Command("clear")
-	cmd.Stdout = os.Stdout
-	cmd.Run()
+func (d *Downloader) drop(t *torrent.Torrent) {
+	t.Drop()
 }
 
 func (d *Downloader) moveRecentDownload(title string, folderName string) {
