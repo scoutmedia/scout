@@ -14,6 +14,9 @@ type Config struct {
 	Sources       []string `yaml:"sources"`
 	NegativeWords []string `yaml:"negativeWords"`
 	DataDir       string   `yaml:"datadir"`
+	Sentry        struct {
+		Dsn string `yaml:"dsn"`
+	}
 }
 
 func NewConfig() Config {

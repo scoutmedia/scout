@@ -1,8 +1,10 @@
 package downloader
 
 import (
+	"fmt"
 	"log"
 	"os"
+	logger "scout/Logger"
 	model "scout/Models"
 	"time"
 
@@ -12,35 +14,30 @@ import (
 type Downloader struct {
 	Client  *torrent.Client
 	Torrent *torrent.Torrent
+	logger  *logger.Logger
 }
 
-func NewDownloader(dataDir string) *Downloader {
+func NewDownloader(dataDir string, logger *logger.Logger) *Downloader {
 	cfg := torrent.NewDefaultClientConfig()
 	cfg.DataDir = dataDir
 	client, _ := torrent.NewClient(cfg)
 	return &Downloader{
 		Client: client,
+		logger: logger,
 	}
 }
 
 func (d *Downloader) Start(title string, torrentFile model.TorrentFile) {
 	t, err := d.Client.AddMagnet(torrentFile.Magnet)
 	if err != nil {
-		log.Println("Error occured adding torrent magnet", err)
+		d.logger.Error("Download", fmt.Sprint("Error occured adding torrent magnet", err))
 	}
-	log.Printf("Retrieving %s info", torrentFile.Name)
+	d.logger.Info("Download", fmt.Sprintf("Retrieving %s info", torrentFile.Name))
 	<-t.GotInfo()
-	log.Printf("%s retrived info", torrentFile.Name)
-	log.Printf("%s download will begin shortly ..", torrentFile.Name)
-	log.Println(torrentFile.Name, t.Info().Name)
+	d.logger.Info("Download", fmt.Sprintf("%s retrived info", torrentFile.Name))
+	d.logger.Info("Download Start", fmt.Sprintf("%s download will begin shortly...", torrentFile.Name))
 	go d.status(title, t)
 	t.DownloadAll()
-
-	// if d.Client.WaitAll() {
-	// 	log.Printf("%s finished downloading , took %v", torrentFile.Name, time.Since(start))
-	// 	defer t.Drop()
-	// 	d.moveRecentDownload(title, t.Info().Name)
-	// }
 }
 
 func (d *Downloader) status(title string, t *torrent.Torrent) {
@@ -53,6 +50,7 @@ func (d *Downloader) status(title string, t *torrent.Torrent) {
 
 		if percentage == 100 {
 			log.Printf("%s download took %v", title, time.Since(start))
+			d.logger.Info("Download Complete", fmt.Sprintf("%s download took %v", title, time.Since(start)))
 			d.moveRecentDownload(title, t.Info().Name)
 			tick.Stop()
 			d.drop(t)

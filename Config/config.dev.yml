@@ -1,7 +1,9 @@
 name: "Scout API"
 port: ":8000"
-version: "v.0.0.2"
+version: "v.0.5"
 datadir: "/media/plex/downloads/"
+sentry:
+   dsn: "https://30bed76e31629f3b7b878e03152102b9@o559921.ingest.sentry.io/4506050250276864"
 
 sources:
    - "TGxGoodies"
