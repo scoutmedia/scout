@@ -6,6 +6,7 @@ import (
 	"scout/Api"
 	config "scout/Config"
 	downloader "scout/Downloader"
+	logger "scout/Logger"
 )
 
 func main() {
@@ -13,11 +14,13 @@ func main() {
 	config := config.NewConfig()
 	config.Load()
 
+	// Initiate Logger
+	logger := logger.NewLogger()
+	logger.Init(config.Sentry.Dsn)
 	// Initiate downloader
-	downloader := downloader.NewDownloader(config.DataDir)
-
+	downloader := downloader.NewDownloader(config.DataDir, logger)
 	// Initialize api server
 	server := Api.NewServer(config, downloader)
-	fmt.Printf("%s %s server running on port%s\n", config.Name, config.Version, config.Port)
+	logger.Info("Sever Start", fmt.Sprintf("%s %s server running on port%s\n", config.Name, config.Version, config.Port))
 	log.Fatal(server.Start())
 }
