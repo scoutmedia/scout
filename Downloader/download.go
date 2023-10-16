@@ -2,8 +2,10 @@ package downloader
 
 import (
 	"fmt"
+	"io"
 	"log"
 	"os"
+	"path"
 	logger "scout/Logger"
 	model "scout/Models"
 	"time"
@@ -42,26 +44,44 @@ func (d *Downloader) Start(title string, torrentFile model.TorrentFile) {
 
 func (d *Downloader) status(title string, t *torrent.Torrent) {
 	start := time.Now()
-	tick := time.NewTicker(5 * time.Second)
+	tick := time.NewTicker(10 * time.Second)
 	for range tick.C {
 		activeTorrent, _ := d.Client.Torrent(t.InfoHash())
 		percentage := float64(activeTorrent.BytesCompleted()) / float64(activeTorrent.Info().TotalLength()) * 100
 		log.Printf("%s Progress %.2f%%\n", activeTorrent.Name(), percentage)
 
 		if percentage == 100 {
-			log.Printf("%s download took %v", title, time.Since(start))
-			d.logger.Info("Download Complete", fmt.Sprintf("%s download took %v", title, time.Since(start)))
-			d.moveRecentDownload(title, t.Info().Name)
 			tick.Stop()
-			d.drop(t)
+			d.logger.Info("Download Complete", fmt.Sprintf("%s download took %v", title, time.Since(start)))
+			d.moveFile(t.Info().Name, title)
 		}
 	}
 }
 
-func (d *Downloader) drop(t *torrent.Torrent) {
-	t.Drop()
-}
+func (d *Downloader) moveFile(source string, fileName string) {
+	fs, err := os.ReadDir("/media/plex/downloads/" + source)
+	if err != nil {
+		d.logger.Error("moveFile", fmt.Sprintf("Error occured accessing %s directory", source))
+	}
 
-func (d *Downloader) moveRecentDownload(title string, folderName string) {
-	os.Rename("/media/plex/downloads/"+folderName, "/media/plex/movies/"+title)
+	for _, f := range fs {
+		if path.Ext(f.Name()) == ".mkv" || path.Ext(f.Name()) == ".mp4" {
+			fileSrc, err := os.Open(fmt.Sprintf("/media/plex/downloads/%s/%s", source, f.Name()))
+			if err != nil {
+				d.logger.Error("moveFile", fmt.Sprintf("Error opening media file %s", err))
+			}
+			err = os.Mkdir(fmt.Sprintf("/media/plex/movies/%s", fileName), 0775)
+			if err != nil {
+				d.logger.Error("moveFile", fmt.Sprintf("Error creating %s directory: %v", fileName, err))
+			}
+			dst, err := os.Create(fmt.Sprintf("/media/plex/movies/%s/%s%s", fileName, source, path.Ext(fileSrc.Name())))
+			if err != nil {
+				d.logger.Error("moveFile", fmt.Sprintf("Error creating %s movie file: %v", fileName, err))
+			}
+			_, err = io.Copy(dst, fileSrc)
+			if err != nil {
+				d.logger.Error("moveFile", fmt.Sprintf("Error occured copying %s data to destination : %s", fileSrc.Name(), dst.Name()))
+			}
+		}
+	}
 }

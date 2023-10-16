@@ -1,7 +1,7 @@
 run:
 	go run main.go
 dev:
-	docker compose up --build -d
+	docker compose up --build
 prod:
 	env=production docker compose up --build -d
 build:

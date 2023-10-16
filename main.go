@@ -10,7 +10,7 @@ import (
 )
 
 func main() {
-	// Initalize and load configuration
+	// // Initalize and load configuration
 	config := config.NewConfig()
 	config.Load()
 
@@ -19,8 +19,9 @@ func main() {
 	logger.Init(config.Sentry.Dsn)
 	// Initiate downloader
 	downloader := downloader.NewDownloader(config.DataDir, logger)
-	// Initialize api server
+	// // Initialize api server
 	server := Api.NewServer(config, downloader)
-	logger.Info("Sever Start", fmt.Sprintf("%s %s server running on port%s\n", config.Name, config.Version, config.Port))
+	log.Println("started")
+	logger.Info("Server Start", fmt.Sprintf("%s %s server running on port%s\n", config.Name, config.Version, config.Port))
 	log.Fatal(server.Start())
 }
