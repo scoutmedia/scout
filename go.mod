@@ -4,6 +4,7 @@ go 1.21.1
 
 require (
 	github.com/anacrolix/torrent v1.52.5
+	github.com/getsentry/sentry-go v0.25.0
 	github.com/gocolly/colly/v2 v2.1.0
 	github.com/spf13/viper v1.16.0
 )
@@ -41,7 +42,6 @@ require (
 	github.com/dustin/go-humanize v1.0.0 // indirect
 	github.com/edsrzf/mmap-go v1.1.0 // indirect
 	github.com/fsnotify/fsnotify v1.6.0 // indirect
-	github.com/getsentry/sentry-go v0.25.0 // indirect
 	github.com/go-logr/logr v1.2.3 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/gobwas/glob v0.2.3 // indirect
