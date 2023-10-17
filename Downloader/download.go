@@ -32,7 +32,7 @@ func NewDownloader(dataDir string, logger *logger.Logger) *Downloader {
 func (d *Downloader) Start(title string, torrentFile model.TorrentFile) {
 	t, err := d.Client.AddMagnet(torrentFile.Magnet)
 	if err != nil {
-		d.logger.Error("Download", fmt.Sprint("Error occured adding torrent magnet", err))
+		d.logger.Error("Download", fmt.Sprint("Error occured adding %s torrent magnet", title, err))
 		return
 	}
 	d.logger.Info("Download", fmt.Sprintf("Retrieving %s info", torrentFile.Name))
