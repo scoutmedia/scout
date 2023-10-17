@@ -32,12 +32,13 @@ func NewDownloader(dataDir string, logger *logger.Logger) *Downloader {
 func (d *Downloader) Start(title string, torrentFile model.TorrentFile) {
 	t, err := d.Client.AddMagnet(torrentFile.Magnet)
 	if err != nil {
-		d.logger.Error("Download", fmt.Sprint("Error occured adding torrent magnet", err))
+		d.logger.Error("Download", fmt.Sprintf("Error occured adding %s torrent magnet: %s", title, err))
+		return
 	}
 	d.logger.Info("Download", fmt.Sprintf("Retrieving %s info", torrentFile.Name))
 	<-t.GotInfo()
 	d.logger.Info("Download", fmt.Sprintf("%s retrived info", torrentFile.Name))
-	d.logger.Info("Download Start", fmt.Sprintf("%s download will begin shortly...", torrentFile.Name))
+	d.logger.Info("Download", fmt.Sprintf("%s download will begin shortly...", torrentFile.Name))
 	go d.status(title, t)
 	t.DownloadAll()
 }
