@@ -1,6 +1,7 @@
 version: '3.9'
 services:
   scout:
+    network_mode: "host"
     container_name: scout
     volumes:
     - "/etc/timezone:/etc/timezone:ro"
@@ -18,12 +19,5 @@ services:
       context: .
       dockerfile: dockerfile
     restart: always
-    networks:
-      - scout_network
     ports:
       - '8000:8000'
-
-
-networks:
-  scout_network:
-    name: scout_network

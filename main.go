@@ -21,7 +21,6 @@ func main() {
 	downloader := downloader.NewDownloader(config.DataDir, logger)
 	// // Initialize api server
 	server := Api.NewServer(config, downloader)
-	log.Println("started")
 	logger.Info("Server Start", fmt.Sprintf("%s %s server running on port%s\n", config.Name, config.Version, config.Port))
 	log.Fatal(server.Start())
 }
