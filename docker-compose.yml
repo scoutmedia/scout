@@ -1,7 +1,7 @@
 version: '3.9'
 services:
   scout:
-    network_mode: "host"
+    # network_mode: "service:gluetun"
     container_name: scout
     volumes:
     - "/etc/timezone:/etc/timezone:ro"
@@ -19,5 +19,35 @@ services:
       context: .
       dockerfile: dockerfile
     restart: always
+  gluetun:
+    image: qmcgaw/gluetun
+    container_name: gluetun
+    # line above must be uncommented to allow external containers to connect.
+    # See https://github.com/qdm12/gluetun-wiki/blob/main/setup/connect-a-container-to-gluetun.md#external-container-to-gluetun
+    cap_add:
+      - NET_ADMIN
+    devices:
+      - /dev/net/tun:/dev/net/tun
     ports:
-      - '8000:8000'
+      - 9001:9001/tcp # Production 
+      - 9000:9000/tcp # Development 
+      - 8888:8888/tcp # HTTP proxy
+      - 8388:8388/tcp # Shadowsocks
+      - 8388:8388/udp # Shadowsocks
+    volumes:
+      - /dev:/gluetun
+    environment:
+      # See https://github.com/qdm12/gluetun-wiki/tree/main/setup#setup
+      - VPN_SERVICE_PROVIDER=mullvad
+      - VPN_TYPE=openvpn
+      # OpenVPN:
+      - OPENVPN_USER=0572525563811018
+      - OPENVPN_PASSWORD=m
+      # Timezone for accurate log times
+      - TZ="America/New_York"
+      # Server list updater
+      # See https://github.com/qdm12/gluetun-wiki/blob/main/setup/servers.md#update-the-vpn-servers-list
+      - UPDATER_PERIOD=
+      - SERVER_CITIES=Chicago IL,Dallas TX,Miami FL
+      - SERVER_COUNTRIES=USA
+      

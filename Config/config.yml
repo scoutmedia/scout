@@ -1,5 +1,5 @@
 name: "Scout API"
-port: ":8000"
+port: ":9001"
 version: "v.1.0"
 datadir: "/media/plex/downloads/"
 sentry:

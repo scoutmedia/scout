@@ -1,7 +1,8 @@
 # Pull latest image of golang
 FROM golang:1.21-alpine
 # Add bash
-RUN apk update && apk add bash
+RUN apk update && apk add bash 
+RUN apk --no-cache add curl
 # Create new directory inside of container
 WORKDIR /scout
 # Copy all files to destination folder
