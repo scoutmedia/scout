@@ -1,8 +1,6 @@
-run:
-	go run main.go
 dev:
-	docker compose up --build
+	docker compose up gluetun -d && docker compose up scout
 prod:
 	env=production docker compose up --build -d
 build:
-	go build && sudo ./scout
+	docker compose up gluetun -d && docker compose up --build scout
