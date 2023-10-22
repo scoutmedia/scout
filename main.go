@@ -10,10 +10,9 @@ import (
 )
 
 func main() {
-	// // Initalize and load configuration
+	// Initalize and load configuration
 	config := config.NewConfig()
 	config.Load()
-
 	// Initiate Logger
 	logger := logger.NewLogger()
 	logger.Init(config.Sentry.Dsn)

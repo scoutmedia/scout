@@ -3,14 +3,14 @@ package task
 import models "scout/Models"
 
 type Task struct {
-	Name        string
+	Media       models.Media
 	Sources     []string
 	TorrentFile models.TorrentFile
 }
 
-func NewTask(name string, sources []string) *Task {
+func NewTask(media models.Media, sources []string) *Task {
 	return &Task{
-		Name:        name,
+		Media:       media,
 		Sources:     sources,
 		TorrentFile: models.TorrentFile{},
 	}

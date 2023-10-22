@@ -1,7 +1,7 @@
 version: '3.9'
 services:
   scout:
-    # network_mode: "service:gluetun"
+    network_mode: "service:gluetun"
     container_name: scout
     volumes:
     - "/etc/timezone:/etc/timezone:ro"
@@ -48,6 +48,6 @@ services:
       # Server list updater
       # See https://github.com/qdm12/gluetun-wiki/blob/main/setup/servers.md#update-the-vpn-servers-list
       - UPDATER_PERIOD=
-      - SERVER_CITIES=Chicago IL,Dallas TX,Miami FL
+      - SERVER_CITIES=Chicago IL,Dallas TX
       - SERVER_COUNTRIES=USA
       
