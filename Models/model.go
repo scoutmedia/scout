@@ -8,16 +8,26 @@ type TorrentFile struct {
 	Magnet   string
 }
 
+type TorrentHTMLElement struct {
+	Name     string
+	Size     string
+	Date     string
+	Uploader string
+	Magnet   string
+	Hrefs    []string
+}
+
 type Media struct {
-	Data struct {
-		Adult        bool   `json:"adult,omitempty"`
-		Overview     string `json:"overview,omitempty"`
-		OriginalName string `json:"original_name,omitempty"`
-		Name         string `json:"name,omitempty"`
-		Type         string `json:"type,omitempty"`
-		Keywords     []struct {
-			Name string `json:"name,omitempty"`
-			Id   int32  `json:"id,omitempty"`
-		} `json:"keywords,omitempty"`
-	} `json:"data,omitempty"`
+	Name         string    `json:"name,omitempty"`
+	Title        string    `json:"title,omitempty"`
+	Type         string    `json:"type,omitempty"`
+	Overview     string    `json:"overview,omitempty"`
+	OriginalName string    `json:"original_name,omitempty"`
+	Adult        bool      `json:"adult,omitempty"`
+	Keywords     []Keyword `json:"keywords,omitempty"`
+}
+
+type Keyword struct {
+	Name string `json:"name,omitempty"`
+	Id   int32  `json:"id,omitempty"`
 }

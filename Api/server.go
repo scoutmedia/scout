@@ -34,7 +34,6 @@ func (s *Server) Start() error {
 
 func (s *Server) handleRequest(w http.ResponseWriter, r *http.Request) {
 	var media models.Media
-	log.Println("called")
 	if r.Method != "POST" {
 		writeJSON(w, http.StatusNotAcceptable, map[string]any{"error": "Invalid request"})
 		return
@@ -44,6 +43,7 @@ func (s *Server) handleRequest(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	writeJSON(w, http.StatusAccepted, map[string]any{"success": "success"})
+	log.Printf("%s request recieved", media.Name)
 	go s.process(media, s.config)
 }
 

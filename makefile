@@ -3,6 +3,6 @@ dev:
 prod:
 	env=production docker compose up --build -d
 build:
-	docker compose up gluetun -d && docker compose up --build scout
+	docker compose up --build scout
 run:
 	env=development go run main.go
