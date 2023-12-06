@@ -8,4 +8,6 @@ My interest began with discovering about plex and started to wonder what could b
 add media started to disturb me. I figured I try my hand at automating the process.
 
 
+[[https://i.imgur.com/tBtSwFz.png|alt=octocat]]
+
 ## What you have to show
