@@ -41,8 +41,8 @@ services:
       - VPN_SERVICE_PROVIDER=mullvad
       - VPN_TYPE=openvpn
       # OpenVPN:
-      - OPENVPN_USER=0572525563811018
-      - OPENVPN_PASSWORD=m
+      - OPENVPN_USER=
+      - OPENVPN_PASSWORD=
       # Timezone for accurate log times
       - TZ="America/New_York"
       # Server list updater
