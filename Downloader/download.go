@@ -7,7 +7,7 @@ import (
 	"os"
 	"path"
 	logger "scout/Logger"
-	model "scout/Models"
+	task "scout/Task"
 	"time"
 
 	"github.com/anacrolix/torrent"
@@ -29,17 +29,17 @@ func NewDownloader(dataDir string, logger *logger.Logger) *Downloader {
 	}
 }
 
-func (d *Downloader) Start(title string, torrentFile model.TorrentFile) {
-	t, err := d.Client.AddMagnet(torrentFile.Magnet)
+func (d *Downloader) Start(task *task.Task) {
+	t, err := d.Client.AddMagnet(task.TorrentFile.Magnet)
 	if err != nil {
-		d.logger.Error("Download", fmt.Sprintf("Error occured adding %s torrent magnet: %s", title, err))
+		d.logger.Error("Download", fmt.Sprintf("Error occured adding %s torrent magnet: %s", task.Media.Name, err))
 		return
 	}
-	d.logger.Info("Download", fmt.Sprintf("Retrieving %s info", torrentFile.Name))
+	d.logger.Info("Download", fmt.Sprintf("Retrieving %s info", task.TorrentFile.Name))
 	<-t.GotInfo()
-	d.logger.Info("Download", fmt.Sprintf("%s retrived info", torrentFile.Name))
-	d.logger.Info("Download", fmt.Sprintf("%s download will begin shortly...", torrentFile.Name))
-	go d.status(title, t)
+	d.logger.Info("Download", fmt.Sprintf("%s retrived info", task.TorrentFile.Name))
+	d.logger.Info("Download", fmt.Sprintf("%s download will begin shortly...", task.TorrentFile.Name))
+	go d.status(task.Media.Name, t)
 	t.DownloadAll()
 }
 

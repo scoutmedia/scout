@@ -5,6 +5,8 @@ datadir: "/media/plex/downloads/"
 sentry:
    dsn: "https://30bed76e31629f3b7b878e03152102b9@o559921.ingest.sentry.io/4506050250276864"
 
+quality: "1080p"
+
 sources:
    - "TGxGoodies"
    - "BedBug"
@@ -12,3 +14,6 @@ sources:
    - "YIFY"
 
 negativeWords:
+   - "webrip"
+   - "rip"
+   - "hdts"

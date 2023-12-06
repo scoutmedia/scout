@@ -1,7 +1,7 @@
 version: '3.9'
 services:
   scout:
-    # network_mode: "service:gluetun"
+    network_mode: "service:gluetun"
     container_name: scout
     volumes:
     - "/etc/timezone:/etc/timezone:ro"
@@ -41,13 +41,13 @@ services:
       - VPN_SERVICE_PROVIDER=mullvad
       - VPN_TYPE=openvpn
       # OpenVPN:
-      - OPENVPN_USER=0572525563811018
-      - OPENVPN_PASSWORD=m
+      - OPENVPN_USER=
+      - OPENVPN_PASSWORD=
       # Timezone for accurate log times
       - TZ="America/New_York"
       # Server list updater
       # See https://github.com/qdm12/gluetun-wiki/blob/main/setup/servers.md#update-the-vpn-servers-list
       - UPDATER_PERIOD=
-      - SERVER_CITIES=Chicago IL,Dallas TX,Miami FL
+      - SERVER_CITIES=Chicago IL,Dallas TX
       - SERVER_COUNTRIES=USA
       

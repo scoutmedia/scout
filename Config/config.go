@@ -14,6 +14,7 @@ type Config struct {
 	Sources       []string `yaml:"sources"`
 	NegativeWords []string `yaml:"negativeWords"`
 	DataDir       string   `yaml:"datadir"`
+	Quality       string   `yaml:"quality"`
 	Sentry        struct {
 		Dsn string `yaml:"dsn"`
 	}
