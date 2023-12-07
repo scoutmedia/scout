@@ -19,5 +19,5 @@ which scours the web for the requested media , fetches it and moves it to the re
 Serving up Scout API to listen to incoming request
 
 ![mobile](https://media.discordapp.net/attachments/794650924115034133/1182058675909701632/Screenshot_from_2023-12-06_14-53-44.png?ex=658350ed&is=6570dbed&hm=b6ff5a3cb006d6c7d2de451b6854b651d6df776546a44f3f2ad3e0c100f08049&=&format=webp&quality=lossless&width=333&height=541)
-
+![mobile](https://cdn.discordapp.com/attachments/794650924115034133/1182312395813703720/IMG_1275.png?ex=65843d39&is=6571c839&hm=37c6b3376abe756d687a5cb9e0c0ce40fc03b24fdf5726d0c9d4b7d1ed5f78aa&)
 Mobile interface view for searching and requesting media.
